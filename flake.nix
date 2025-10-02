@@ -3,9 +3,9 @@
   description = "Create highly reproducible python environments";
 
   inputs.flake-utils.url = "github:meta-introspector/flake-utils?ref=feature/CRQ-016-nixify";
-  inputs.nixpkgs.url = "nixpkgs/nixos-unstable";
+  inputs.nixpkgs.url = "github:meta-introspector/nixpkgs?ref=feature/CRQ-016-nixify";
   inputs.pypi-deps-db = {
-    url = "github:DavHau/pypi-deps-db";
+    url = "github:meta-introspector/pypi-deps-db";
     flake = false;
   };
 
