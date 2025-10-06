@@ -23,7 +23,7 @@ let
       tests ? false,  # Disable tests wherever possible to decrease build time.
       _ ? {},  # simplified overrides
       _providerDefaults ? l.makeProviderDefaults requirements,
-      _fixes ? import ../fixes.nix {pkgs = pkgs;},
+      _fixes ? import ../fixes.nix {inherit pkgs;},
       postBuild ? "", # Commands to run after building environment
     }:
     let
@@ -119,7 +119,7 @@ let
         ++ [ override_selectPkgs ]
       );
       py_final = python_pkg.override { packageOverrides = all_overrides;};
-      py_final_with_pkgs = ((py_final.withPackages (ps: selectPkgs ps)).override {
+      py_final_with_pkgs = ((py_final.withPackages selectPkgs).override {
         inherit ignoreCollisions;
       }).overrideAttrs (oa:{
         postBuild = ''
@@ -131,11 +131,11 @@ let
           (map (p: "--suffix PATH : ${p}/bin") extra_pkgs_other)
           ++ [''--set QT_PLUGIN_PATH ${py_final_with_pkgs}/plugins''];
       });
-    in let
+    
       self = final_env.overrideAttrs (oa: {
         passthru = oa.passthru // rec {
           inherit selectPkgs;
-          expr = result.expr;
+          inherit (result) expr;
           pythonOverrides = all_overrides;
           python = py_final;
           overlay = self: super:
@@ -147,7 +147,7 @@ let
                   packageOverrides = pythonOverrides;
                 };
               };
-          nixpkgs = import pkgs.path { config = pkgs.config; overlays = pkgs.overlays ++ [ overlay ]; };
+          nixpkgs = import pkgs.path { inherit (pkgs) config; overlays = pkgs.overlays ++ [ overlay ]; };
           dockerImage = makeOverridable
             (args: pkgs.dockerTools.buildLayeredImage args)
             {
