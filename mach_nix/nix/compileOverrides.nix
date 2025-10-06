@@ -26,7 +26,7 @@ let
 
   _providers =
     let
-      extraChannelProviders =(map (n: "conda/" + n) (attrNames condaChannelsExtra));
+      extraChannelProviders = map (n: "conda/" + n) (attrNames condaChannelsExtra);
       extraProviders =
         extraChannelProviders
         ++ filter (p: ! extraChannelProviders ? p) processedReqs.providers;
@@ -36,13 +36,13 @@ let
             ++ (filter (p: ! elem p __providerDefaults._default) extraProviders);
       };
     in
-      (l.parseProviders (defaults // providers));
+      l.parseProviders (defaults // providers);
 
   nixpkgs_json = import ./nixpkgs-json.nix {
     inherit overrides pkgs python;
   };
   builder_python = pkgs.pkgsBuildHost.python39.withPackages(ps:
-    (pkgs.lib.attrValues (import ./python-deps.nix {python = pkgs.python39; fetchurl = pkgs.fetchurl; }))
+    (pkgs.lib.attrValues (import ./python-deps.nix {python = pkgs.python39; inherit (pkgs) fetchurl; }))
   );
 
   src = ./../../.;

@@ -25,7 +25,7 @@ with pkgs.lib;
 assert builtins.compareVersions builtins.nixVersion "2.3" >= 0;
 
 let
-  l = import ./mach_nix/nix/lib.nix { inherit pkgs; lib = pkgs.lib; };
+  l = import ./mach_nix/nix/lib.nix { inherit pkgs; inherit (pkgs) lib; };
 
   python_machnix = import ./mach_nix/nix/python.nix { inherit pkgs; };
 
@@ -90,10 +90,10 @@ rec {
     ];
   };
 
-  pythonDeps = (builtins.attrValues (import ./mach_nix/nix/python-deps.nix {
+  pythonDeps = builtins.attrValues (import ./mach_nix/nix/python-deps.nix {
     python = python_machnix;
-    fetchurl = pkgs.fetchurl;
-  }));
+    inherit (pkgs) fetchurl;
+  });
 
   # the main functions
   mkPython = args: __mkPython "mkPython" args;
@@ -110,20 +110,20 @@ rec {
   buildPythonApplication = __buildPython "buildPythonApplication";
 
   # provide pypi fetcher to user
-  fetchPypiSdist = pypiFetcher.fetchPypiSdist;
-  fetchPypiWheel = pypiFetcher.fetchPypiWheel;
+  inherit (pypiFetcher) fetchPypiSdist;
+  inherit (pypiFetcher) fetchPypiWheel;
 
   # expose dot interface for flakes cmdline
   "with" = pythonWith;
-  pythonWith = (withDot (__mkPython "'.pythonWith'")).pythonWith;
-  dockerImageWith = (withDot (__mkPython "'.dockerImageWith'")).dockerImageWith;
+  inherit ((withDot (__mkPython "'.pythonWith'"))) pythonWith;
+  inherit ((withDot (__mkPython "'.dockerImageWith'"))) dockerImageWith;
 
   # expose mach-nix' nixpkgs
   # those are equivalent to the pkgs passed by the user
   nixpkgs = pkgs;
 
   # expose R packages
-  rPackages = pkgs.rPackages;
+  inherit (pkgs) rPackages;
 
   # this might beuseful for someone
   inherit (l) mergeOverrides;

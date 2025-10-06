@@ -26,7 +26,7 @@ let
 
   # filter function that doesn't crash on 'objects = null'
   # This is important because null will be returned whenever the attribute to modify doesn't exist
-  filterSafe = func: objects: if isNull objects then [] else builtins.filter func objects;
+  filterSafe = func: objects: if (objects == null) then [] else builtins.filter func objects;
 
 in
 
@@ -130,9 +130,9 @@ rec {
   };
 
   deepspeed-mii.remove-asyncio = {
-    _cond = ({ pyver, ... }:
+    _cond = { pyver, ... }:
       # asyncio becomes a built-in library since Python 3.4
-      comp_ver pyver ">=" "3.4");
+      comp_ver pyver ">=" "3.4";
     propagatedBuildInputs.mod =
       filterSafe (input: input.pname != "asyncio");
   };

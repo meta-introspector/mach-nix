@@ -21,7 +21,7 @@ let
       python ? pythonGlobal,  # define python version
       _ ? {},  # simplified overrides
       _providerDefaults ? l.makeProviderDefaults requirements,
-      _fixes ? import ../fixes.nix {pkgs = pkgs;},
+      _fixes ? import ../fixes.nix {inherit pkgs;},
       ...
     }:
     with (_buildPythonParseArgs args);
@@ -79,16 +79,16 @@ let
         ++ (l.fixes_to_overrides _fixes)
         ++ overridesPost ++ (l.simple_overrides _)
       );};
-      pass_args = removeAttrs args (builtins.attrNames ({
+      pass_args = removeAttrs args (builtins.attrNames {
         inherit condaDataRev condaDataSha256 overridesPre overridesPost pkgs providers
                 requirements requirementsExtra pypiData tests _providerDefaults _ ;
         python = python_arg;
-      }));
+      });
     in
     py_final.pkgs."${func}" ( pass_args // {
       propagatedBuildInputs =
         (result.select_pkgs py_final.pkgs) ++ (args.propagatedBuildInputs or []);
-      src = src;
+      inherit src;
       inherit doCheck pname version;
       passthru = passthru // {
         requirements = reqs;

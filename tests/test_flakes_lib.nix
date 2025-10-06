@@ -7,7 +7,7 @@
 }:
 with builtins;
 let
-  mkPython = (builtins.getFlake (toString ../.)).lib.${system}.mkPython;
-  buildPythonPackage = (builtins.getFlake (toString ../.)).lib.${system}.buildPythonPackage;
+  inherit ((builtins.getFlake (toString ../.)).lib.${system}) mkPython;
+  inherit ((builtins.getFlake (toString ../.)).lib.${system}) buildPythonPackage;
 in
 mkPython [ "https://github.com/psf/requests/tarball/v2.25.0" ]

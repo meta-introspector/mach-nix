@@ -34,7 +34,7 @@ let
       res = if pname != "" && p ? version then
         {
           inherit pname requirements;
-          version = (toString p.version);
+          version = toString p.version;
         }
       else
         null;
@@ -44,12 +44,10 @@ let
   get_pname = pkg:
     let
       res = tryEval (
-        if pkg ? src.pname then
-          pkg.src.pname
-        else if pkg ? pname then
-          let pname = pkg.pname; in
-            if nameMap ? "${pname}" then nameMap."${pname}" else pname
-          else ""
+        pkg.src.pname or (if pkg ? pname then
+          let inherit (pkg) pname; in
+            nameMap."${pname}" or pname
+          else "")
       );
     in
       toString res.value;

@@ -30,10 +30,10 @@ rec {
   };
 
 
-  rich = python.pkgs.rich;
-  networkx = python.pkgs.networkx;
-  packaging = python.pkgs.packaging;
-  setuptools = python.pkgs.setuptools;
-  toml = python.pkgs.toml;
-  wheel = python.pkgs.wheel;
+  inherit (python.pkgs) rich;
+  inherit (python.pkgs) networkx;
+  inherit (python.pkgs) packaging;
+  inherit (python.pkgs) setuptools;
+  inherit (python.pkgs) toml;
+  inherit (python.pkgs) wheel;
 }

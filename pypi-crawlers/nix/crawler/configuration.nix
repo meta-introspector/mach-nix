@@ -1,6 +1,6 @@
 { config, pkgs, ...}:
 let
-  python = (import ../python.nix);
+  python = import ../python.nix;
   user = "crawler";
   src = "${../../src}";
   nixpkgs_src = (import ../../nix/nixpkgs-src.nix).stable;
@@ -55,24 +55,13 @@ in
     device = "/tmp/swapfile";
   }];
   nix.nixPath = [ "nixpkgs=${nixpkgs_src}" ];
-  services.journald.extraConfig = ''
-    SystemMaxUse=1G
-  '';
-  nixpkgs.config.allowUnfree = true;
-  environment.systemPackages = [
-    python
-    pkgs.htop
-    pkgs.vim
-    pkgs.bmon
-  ] ++ extractor.pythonInterpreters;
-  nix.maxJobs = 2;
-  nix.extraOptions = ''
-    http-connections = 300
-    #keep-env-derivations = true
-    keep-outputs = true
-  '';
-  services.zerotierone.enable = true;
-  services.zerotierone.joinNetworks = ["93afae59636cb8e3"];  # db network
+  services = {
+    journald.extraConfig = ''
+      SystemMaxUse=1G
+    '';
+    zerotierone.enable = true;
+    zerotierone.joinNetworks = ["93afae59636cb8e3"];  # db network
+  };
   users = {
     mutableUsers = false;
     users."${user}" = {

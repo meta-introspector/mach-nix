@@ -32,7 +32,7 @@ pkgs: python: with pkgs.lib;
         inherit toPythonModule; # Libraries provide modules
 
         # this prevents infinite recursions when overriding setuptools later
-        setuptools = python.pkgs.setuptools;
+        inherit (python.pkgs) setuptools;
       })
     );
 
@@ -42,7 +42,7 @@ pkgs: python: with pkgs.lib;
         toPythonModule = x: x;  # Application does not provide modules.
 
         # this prevents infinite recursions when overriding setuptools later
-        setuptools = python.pkgs.setuptools;
+        inherit (python.pkgs) setuptools;
       })
     );
   }

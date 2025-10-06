@@ -20,7 +20,7 @@ let
    # Hash obtained using `nix-prefetch-url --unpack <url>`
    sha256 = "080l189zzwrv75jgr7agvs4hjv4i613j86d4qky154fw5ncp0mnp";
   };
-  fetchPypi = import (fetchPypiSrc);
+  fetchPypi = import fetchPypiSrc;
   patchDistutils = python_env:
     with builtins;
     let

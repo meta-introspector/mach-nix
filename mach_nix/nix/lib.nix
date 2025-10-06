@@ -70,22 +70,22 @@ rec {
 
   selectPythonPkg = pkgs: pyStr: requirements:
     let
-      preProcessedReqs = (preProcessRequirements requirements);
+      preProcessedReqs = preProcessRequirements requirements;
       python_arg =
-        (if isString pyStr || isNull pyStr then
+        if isString pyStr || (pyStr == null) then
           pyStr
          else
-          throw '''python' must be a string. Example: "python38"'');
+          throw '''python' must be a string. Example: "python38"'';
     in
       if preProcessedReqs ? python then
-        if ! isNull pyStr && pyStr != preProcessedReqs.python then
+        if pyStr != null && pyStr != preProcessedReqs.python then
           throw ''
             The specified 'python' conflicts the one specified via 'requirements'.
             Either remove `python=` from your requirements or do not specify 'python' when importing mach-nix
           ''
         else
           pkgs."${preProcessedReqs.python}"
-      else if isNull pyStr then
+      else if (pyStr == null) then
         pkgs.python3
       else
         pkgs."${python_arg}" ;
@@ -102,7 +102,7 @@ rec {
               ver = elemAt split 1;
               build = elemAt split 2;
               build'=
-                if isNull (match "py[[:digit:]]+_[[:digit:]]+" build) && isNull (match "[[:digit:]]+" build) then
+                if ((match "py[[:digit:]]+_[[:digit:]]+" build) == null) && ((match "[[:digit:]]+" build) == null) then
                   build
                 else
                   "*";
@@ -160,7 +160,7 @@ rec {
 
   parseProvidersToJson =
     let
-      providers = (fromJSON (getEnv "providers"));
+      providers = fromJSON (getEnv "providers");
     in
       pkgs.writeText "providers-json" (toJSON (parseProviders providers));
 
@@ -185,7 +185,7 @@ rec {
           args.pkgs.pythonManylinuxPackages.manylinux1;
     in {
       overrides = result.overrides manylinux autoPatchelfHook;
-      select_pkgs = result.select_pkgs;
+      inherit (result) select_pkgs;
       expr = readFile file;
     };
 
@@ -199,8 +199,8 @@ rec {
     let
       file_path = "${(import ../../lib/extractor { inherit pkgs; }).extract_from_src {
           py = python;
-          src = src;
-          name = name;
+          inherit src;
+          inherit name;
         }}/python.json";
     in
       if pathExists file_path then fromJSON (builtins.unsafeDiscardStringContext (readFile file_path)) else throw fail_msg;
@@ -209,12 +209,12 @@ rec {
     let
       ensureList = requires: if isString requires then [requires] else requires;
       data = extract {
-        python=python;
-        src = src; 
+        inherit python;
+        inherit src; 
         fail_msg = ''
         Automatic requirements extraction failed for ${name}.
             Please manually specify 'requirements' '';
-          name = name;
+          inherit name;
       };
       setup_requires = if hasAttr "setup_requires" data then ensureList data.setup_requires else [];
       install_requires = if hasAttr "install_requires" data then ensureList data.install_requires else [];
@@ -232,7 +232,7 @@ rec {
       error_msg = ''
         Automatic extraction of '${for_attr}' from python package source ${src} failed.
         Please manually specify '${for_attr}' '';
-      data = extract {python=python;  src =src; fail_msg= error_msg; name = for_attr; };
+      data = extract {inherit python;  inherit src; fail_msg= error_msg; name = for_attr; };
       result = if hasAttr attr data then data."${attr}" else throw error_msg;
       msg = "\n automatically detected ${for_attr}: '${result}'";
     in
@@ -254,9 +254,9 @@ rec {
   };
 
   combine = pname: key: val1: val2:
-    if isList val2 then (if ! isNull val1 then val1 else []) ++ val2
-    else if isAttrs val2 then (if ! isNull val1 then val1 else {}) // val2
-    else if isString val2 then (if ! isNull val1 then val1 else "") + val2
+    if isList val2 then (if val1 != null then val1 else []) ++ val2
+    else if isAttrs val2 then (if val1 != null then val1 else {}) // val2
+    else if isString val2 then (if val1 != null then val1 else "") + val2
     else throw "_.${pname}.${key}.add only accepts list or attrs or string.";
 
   fixes_to_overrides = fixes:

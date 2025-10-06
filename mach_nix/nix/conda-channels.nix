@@ -61,11 +61,11 @@ let
 
   _selectedRegistryChannels =
 
-    genAttrs usedChannels (chan: channelFiles chan);
+    genAttrs usedChannels channelFiles;
 
   _condaChannelsExtra = filterAttrs (chan: json: elem chan usedChannels) condaChannelsExtra;
 
-  allCondaChannels = (_selectedRegistryChannels // _condaChannelsExtra);
+  allCondaChannels = _selectedRegistryChannels // _condaChannelsExtra;
 
   condaChannelsJson = pkgs.writeText "conda-channels.json" (toJSON allCondaChannels);
 
@@ -77,7 +77,7 @@ in
 if missingChannels != [] then
   throw "Conda channels [${toString missingChannels}] are unknown. Use 'condaChannelsExtra' to make them available"
 else let
-  channelNames = (attrNames allCondaChannels); in
+  channelNames = attrNames allCondaChannels; in
   if channelNames != [] then
     trace "using conda channels: ${toString (concatStringsSep ", " (attrNames allCondaChannels))}"
     { inherit condaChannelsJson; }

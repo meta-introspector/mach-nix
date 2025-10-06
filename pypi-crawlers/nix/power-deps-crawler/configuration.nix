@@ -1,6 +1,6 @@
 { config, pkgs, nodes, ... }:
 let
-  python = (import ../python.nix);
+  python = import ../python.nix;
   user = "crawler";
   src = "${../../src}";
   nixpkgs_src = "${../nixpkgs-src.nix}";

@@ -5,9 +5,9 @@ with pkgs.lib;
 let
   l = import ./lib.nix { inherit (pkgs) lib; inherit pkgs; };
 
-  buildPythonPackageBase = (import ./buildPythonPackage.nix {
+  buildPythonPackageBase = import ./buildPythonPackage.nix {
     inherit condaChannelsExtra condaDataRev condaDataSha256 pkgs pypiData;
-   });
+   };
 
   mkPython = pythonGlobal:
     {
@@ -85,9 +85,9 @@ let
         rpy2.buildInputs.add = extra_pkgs_r;
       };
       overrides_simple_extra = flatten (
-        (map l.simple_overrides (
+        map l.simple_overrides (
           map (p: if hasAttr "_" p then p._ else {}) extra_pkgs_python
-        ))
+        )
       );
       overrides_pre_extra = flatten (map (p: p.passthru.overridesPre) extra_pkgs_python);
       overrides_post_extra = flatten (map (p: p.passthru.overridesPost) extra_pkgs_python);
@@ -156,10 +156,10 @@ let
               contents = [
                 self
               ] ++ extra_pkgs_other
-              ++ pkgs.lib.optional (pkgs.stdenv.isLinux) pkgs.busybox
+              ++ pkgs.lib.optional pkgs.stdenv.isLinux pkgs.busybox
               # Even though the docker container is always linux, the nix
               # closure is built locally and busybox won't evaluate on macOS
-              ++ pkgs.lib.optionals (pkgs.stdenv.isDarwin) [ pkgs.coreutils ];
+              ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [ pkgs.coreutils ];
               config = {
                 Cmd = [ "${self}/bin/python" ];
               };

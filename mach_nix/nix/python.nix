@@ -5,9 +5,9 @@
   ...
 }:
 let
-  lib = pkgs.lib;
+  inherit (pkgs) lib;
   python = pkgs.python39;
-  pythonDeps = (lib.attrValues (import ./python-deps.nix { inherit python; fetchurl = pkgs.fetchurl; }));
+  pythonDeps = lib.attrValues (import ./python-deps.nix { inherit python; inherit (pkgs) fetchurl; });
   pythonDepsDev = with python.pkgs; [
     pytest_6
     pytest-xdist

@@ -2,11 +2,13 @@
 
   description = "Create highly reproducible python environments";
 
-  inputs.flake-utils.url = "github:meta-introspector/flake-utils?ref=feature/CRQ-016-nixify";
-  inputs.nixpkgs.url = "github:meta-introspector/nixpkgs?ref=feature/CRQ-016-nixify";
-  inputs.pypi-deps-db = {
-    url = "github:meta-introspector/pypi-deps-db";
-    flake = false;
+  inputs = {
+    flake-utils.url = "github:meta-introspector/flake-utils?ref=feature/CRQ-016-nixify";
+    nixpkgs.url = "github:meta-introspector/nixpkgs?ref=feature/CRQ-016-nixify";
+    pypi-deps-db = {
+      url = "github:meta-introspector/pypi-deps-db";
+      flake = false;
+    };
   };
 
   outputs = { self, nixpkgs, flake-utils, ... }@inp:
@@ -90,13 +92,13 @@
                     dev = true;
                   })
                 ]
-                ++ pkgs.lib.optional (stdenv.isLinux) busybox
+                ++ pkgs.lib.optional stdenv.isLinux busybox
                 # This is not equivalent to "busybox", but is close enough for
                 # everything to work. The only quirk here is borrowing a trick
                 # from nixpkgs to provide a "/bin/sh" that's identical to the
                 # one nixpkgs exists (coreutils doesn't bundle /bin/sh but
                 # busybox does).
-                ++ pkgs.lib.optionals (stdenv.isDarwin) [
+                ++ pkgs.lib.optionals stdenv.isDarwin [
                   coreutils
                 ])}"
 
@@ -122,8 +124,8 @@
                   parallel
                   bash
                 ]
-                ++ pkgs.lib.optional (stdenv.isLinux) busybox
-                ++ pkgs.lib.optionals (stdenv.isDarwin) [
+                ++ pkgs.lib.optional stdenv.isLinux busybox
+                ++ pkgs.lib.optionals stdenv.isDarwin [
                   coreutils
                 ])}"
 
